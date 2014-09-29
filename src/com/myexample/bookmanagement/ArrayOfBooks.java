@@ -70,7 +70,7 @@ public class ArrayOfBooks {
 	
 	public DataOfBook getDataWithLabel(int index)
 	{
-		DataOfBook tmp;// = new DataOfBook(null,null,null,null);
+		DataOfBook tmp;
 		switch(index){
 		case 0: 
 			tmp = array0;
@@ -105,8 +105,12 @@ public class ArrayOfBooks {
 		default:
 			tmp = null;
 		}
-		System.out.println("tmp:date:"+tmp.getDate());
-		System.out.println("tmp:URL:"+tmp.image_url);
+		//データベースにデータがあるとき
+		if(tmp != null)
+		{
+			System.out.println("tmp:date:"+tmp.getDate());
+			System.out.println("tmp:URL:"+tmp.image_url);
+		}
 		return tmp;
 	}
 	

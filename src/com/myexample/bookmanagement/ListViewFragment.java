@@ -20,6 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class ListViewFragment extends Fragment {
 	private List<ListViewItem> list;
 	private ListView listView ;
 	private RequestQueue mQueue;
+	private CustomListItemAdapter adapter;
 	public static final  int FIRST_BEGIN_PAGE = 28;
 	public static final  int NUM_OF_PAGE = 10;
 	public static final String IP_ADDRESS = "10.0.1.44";
@@ -58,13 +60,11 @@ public class ListViewFragment extends Fragment {
 	}
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		 Log.d(TAG, "onCreate");
-		super.onCreateView(inflater, container, savedInstanceState);
-		View view = inflater.inflate(R.layout.list_view, container, false);
-		setHasOptionsMenu(true);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		//ListViewに表示させる要素を作成する。
 		list = new ArrayList<ListViewItem>();
+		//ここで初期化すると、初期化データが表示されず最初からDBのデータが表示されるようになる。
 		int i;
 		for(i=0;i<10;i++)
 		{
@@ -73,13 +73,21 @@ public class ListViewFragment extends Fragment {
 			String firstDate = String.format("2014/10/"+( i + 1));
 			int firstResourceId = i;
 			list.add( new ListViewItem(firstResourceId, firstBookName, firstPrice, firstDate) );
-		}
+		}	
+		mQueue = Volley.newRequestQueue(getActivity());
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		 Log.d(TAG, "onCreate");
+		super.onCreateView(inflater, container, savedInstanceState);
+		View view = inflater.inflate(R.layout.list_view, container, false);
+		setHasOptionsMenu(true);
 		//ListViewの取得
 		listView = (ListView) view.findViewById(R.id.ListView);
 		//ListViewは一覧の中身を管理できないので、Adapterをバインドさせ管理する。
-		CustomListItemAdapter adapter = new CustomListItemAdapter(getActivity(), 0, list);
+		adapter = new CustomListItemAdapter(getActivity(), 0, list);
 		listView.setAdapter(adapter);
-		mQueue = Volley.newRequestQueue(getActivity());
 		//初期値は多分いるけど、list内容をDBから取ってくるのはonCreate内でやらないとlist内容が更新されまくって変になる。
 		try {
 			getBooksVolley("latest", FIRST_BEGIN_PAGE);
@@ -213,10 +221,11 @@ public class ListViewFragment extends Fragment {
 		private void getBooksVolley(String requestPagePosition, int beginPage) throws JSONException {
 			isThisFirstGet = requestPagePosition;
 			final Gson gson = new Gson();
-			JSONObject requestToken = new JSONObject();
-			requestToken.put("user_id", "3");
-			requestToken.put("mail_address", "01234@567.com");
-			requestToken.put("password", "01234567");
+			SharedPreferences prefs = getActivity().getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
+		    JSONObject requestToken = new JSONObject();
+			requestToken.put("user_id", prefs.getString("user_id", ""));
+			requestToken.put("mail_address", prefs.getString("mail_address", ""));
+			requestToken.put("password", prefs.getString("password",""));
 			JSONObject requestPage = new JSONObject();
 			requestPage.put("begin", beginPage);
 			requestPage.put("numOfPage", NUM_OF_PAGE);
@@ -227,7 +236,6 @@ public class ListViewFragment extends Fragment {
 			JSONObject param = new JSONObject();
 			param.put("method", "book/get");
 			param.put("params", params);
-			//Log.d("request",""+param.toString());
 		    // Volley でリクエスト
 			//mampとgenymotionの連動は、localhostをgenymotionのある端末のIPアドレスに変更させる必要あり。
 		    String url = "http://"+IP_ADDRESS+":8888/cakephp/book/get";
@@ -241,6 +249,13 @@ public class ListViewFragment extends Fragment {
                 	if(gotDataOfBook.status.equals("ok")){
                 		int i;
                 		int numOfData = gotDataOfBook.data.getNumOfData();
+                		if(numOfData == 0)
+            			{
+            				//データベースにデータが無いとき
+            				Log.d("getData", "end data");
+            				String msg = "これ以上の登録書籍はありません";
+            				showAlert(msg);
+            			}
                 		int nowListSize = list.size();
                 		for(i=0;i<numOfData;i++)
                 		{
@@ -254,12 +269,14 @@ public class ListViewFragment extends Fragment {
                 				list.set(i, new ListViewItem(resourceID, bookName, price, date) );
                 			}else{
                 				list.add(i+nowListSize, new ListViewItem(resourceID, bookName, price, date) );
+                				Log.d("get", ""+ list.size());
                 			}
 	                	}
             			SharedPreferences prefs = getActivity().getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
             		   	SharedPreferences.Editor editor = prefs.edit();
             		   	editor.putInt("numOfBooks", gotDataOfBook.data.getNumOfBooks());
             		   	editor.apply();
+            		   	adapter.notifyDataSetChanged();
                 	}else{
                 		System.out.println("error:"+gotDataOfBook.error);
                 	}
@@ -371,14 +388,15 @@ public class ListViewFragment extends Fragment {
 			int beginPage = numOfBooks - list.size();
 			try {
 				getBooksVolley("old", beginPage);
-    		   synchronized(this){
-		   			
-    		   }
-
 			} catch (JSONException e) {
-				// TODO 自動生成された catch ブロック
 				e.printStackTrace();
 			}
+		}	
+		private void showAlert(String msg)
+		{
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setMessage(msg).setPositiveButton("OK", null);
+			builder.show();
 		}
-		
+
 }

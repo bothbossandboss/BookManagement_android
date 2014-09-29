@@ -64,16 +64,23 @@ public class PropertyViewFragment extends Fragment {
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
-		//ï“èWÇµÇƒï€ë∂Ç∑ÇÈèÍçáÅB
 		if(requestCode == MainActivity.REQUEST_CODE_SAVE_ACCOUNT)
 		{
 			if(resultCode == Activity.RESULT_OK)
 			{
 				super.onActivityResult(requestCode, resultCode, intent);
+				String user_id = intent.getStringExtra("userId");
 				String saveMailAddress = intent.getStringExtra("mailAddress");
 				String savePassword = intent.getStringExtra("password");
+				Log.d("saveAccount",""+user_id);
 				Log.d("saveAccount",""+saveMailAddress);
 				Log.d("saveAccount",""+savePassword);
+    			SharedPreferences prefs = getActivity().getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
+    		   	SharedPreferences.Editor editor = prefs.edit();
+    		   	editor.putString("user_id", user_id);
+    		   	editor.putString("mail_address", saveMailAddress);
+    		   	editor.putString("password", savePassword);
+    		   	editor.apply();
 			}
 		}
 	}
