@@ -1,10 +1,9 @@
 package com.myexample.bookmanagement;
-
-import java.util.HashMap;
-
+/*
+ * アカウント入力画面のactivity
+ */
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -15,14 +14,10 @@ import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
@@ -38,31 +33,12 @@ public class AccountViewActivity extends Activity {
 	private EditText confirmEditText;
 	private RequestQueue mQueue;
 	private JSONObject params;
-	private int userID;
 	private String inputMailAddress;
 	private String inputPassword;
 	
-	public void controlKeyboard(final EditText ed)
-	{
-		ed.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-	        @Override
-	        public void onFocusChange(View v, boolean hasFocus) {
-	            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	            Log.d("keyboard", "hasFocus:"+hasFocus);
-	            // フォーカスを受け取ったとき
-	            if(hasFocus){
-	                // ソフトキーボードを表示する
-	                inputMethodManager.showSoftInput(v, InputMethodManager.SHOW_FORCED);
-	            }
-	            // フォーカスが外れたとき
-	            else{
-	                // ソフトキーボードを閉じる
-	                inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(),0);
-	            }
-	        }
-	    });
-	}
-	 
+	/*
+	 *method of activity's life cycle
+	 */	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -75,7 +51,7 @@ public class AccountViewActivity extends Activity {
 		controlKeyboard(mailAddressEditText);
 		controlKeyboard(passwordEditText);
 		controlKeyboard(confirmEditText);
-		Intent intent = getIntent();
+		//Intent intent = getIntent();
 		mQueue = Volley.newRequestQueue(this);
 	}
 	
@@ -106,6 +82,36 @@ public class AccountViewActivity extends Activity {
 		});	
 	}
 	
+	/*
+	 * private method
+	 */
+	private void controlKeyboard(final EditText ed)
+	{
+		ed.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+	        @Override
+	        public void onFocusChange(View v, boolean hasFocus) {
+	            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	            // フォーカスを受け取ったとき
+	            if(hasFocus){
+	                // ソフトキーボードを表示する
+	                inputMethodManager.showSoftInput(v, InputMethodManager.SHOW_FORCED);
+	            }
+	            // フォーカスが外れたとき
+	            else{
+	                // ソフトキーボードを閉じる
+	                inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(),0);
+	            }
+	        }
+	    });
+	}
+	
+	private void showAlert()
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("パスワードが違います").setPositiveButton("OK", null);
+		builder.show();
+	}
+	
 	private void makeIntentToFinish(String user_id, String saveMailAddress, String savePassword)
 	{
 		Intent intent = new Intent();
@@ -116,13 +122,9 @@ public class AccountViewActivity extends Activity {
 		finish();
 	}
 	
-	private void showAlert()
-	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("パスワードが違います").setPositiveButton("OK", null);
-		builder.show();
-	}
-
+	/*
+	 * method to access Database
+	 */
 	private void registerAccount(String mailAddress, String password) throws JSONException
 	{
 		inputMailAddress = mailAddress;
@@ -202,6 +204,9 @@ public class AccountViewActivity extends Activity {
 	    mQueue.start();
 	}
 	
+	/*
+	 * class to access database
+	 */
 	private class responseAccountData
 	{
 		private String status;
@@ -229,6 +234,4 @@ public class AccountViewActivity extends Activity {
 			return data;
 		}
 	}
-
-
 }

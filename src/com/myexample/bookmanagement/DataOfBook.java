@@ -1,15 +1,14 @@
 package com.myexample.bookmanagement;
-
-import java.sql.Date;
-import java.util.HashMap;
-
-//変数名はphp側に完全に一致させること！
+/*
+ * データベースから取得した、書籍詳細情報を格納するためのクラス
+ * 変数名はphp側に完全に一致させること！
+ */
 public class DataOfBook {
-	public String image_url;
-	public String title;
-	public String price;
-	public String purchase_date;
-	public int book_id;
+	private String image_url;
+	private String title;
+	private String price;
+	private String purchase_date;
+	private int book_id;
 	
 	public DataOfBook(String image_url, String title, String price, String purchase_date, int book_id)
 	{
@@ -19,8 +18,28 @@ public class DataOfBook {
 		this.purchase_date = purchase_date;
 	}
 	
+	public String getImageUrl()
+	{
+		return image_url;
+	}
+	
+	public String getTitle()
+	{
+		return title;
+	}
+	
+	public String getPrice()
+	{
+		return price;
+	}
+	
 	public String getDate()
 	{
 		return purchase_date;
+	}
+	
+	public int getBookId()
+	{
+		return book_id;
 	}
 }

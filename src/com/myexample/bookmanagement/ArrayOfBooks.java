@@ -1,9 +1,7 @@
 package com.myexample.bookmanagement;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+/*
+ * 書籍一覧取得時の、書籍詳細データの配列を格納するクラス
+ */
 public class ArrayOfBooks {
 	private int numOfBooks;
 	/*
@@ -109,7 +107,7 @@ public class ArrayOfBooks {
 		if(tmp != null)
 		{
 			System.out.println("tmp:date:"+tmp.getDate());
-			System.out.println("tmp:URL:"+tmp.image_url);
+			System.out.println("tmp:URL:"+tmp.getImageUrl());
 		}
 		return tmp;
 	}

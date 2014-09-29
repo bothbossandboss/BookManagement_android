@@ -1,5 +1,7 @@
 package com.myexample.bookmanagement;
-
+/*
+ * 書籍新規登録・更新の時のデータベースからのレスポンスを格納するためのクラス
+ */
 import java.util.HashMap;
 
 public class ResultOfRegisterOrUpdate {
@@ -29,5 +31,4 @@ public class ResultOfRegisterOrUpdate {
 		String bookId = data.get("book_id");
 		return bookId;
 	}
-	
 }

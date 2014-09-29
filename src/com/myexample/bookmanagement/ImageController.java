@@ -1,12 +1,11 @@
 package com.myexample.bookmanagement;
-
+/*
+ * ‘ĞÚ×‰æ–Ê‚É‚¨‚¯‚é‘Ğ‚Ì‰æ‘œ‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+ */
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +20,7 @@ public class ImageController{
 	{
 		imageUri = uri;
 	}
+	
 	// æ“¾‚µ‚½URI‚ğ—p‚¢‚Ä‰æ‘œ‚ğ“Ç‚İ‚Ş
 	public Bitmap loadImage(int viewWidth, int viewHeight, Activity ac){
 		// URI‚©‚ç‰æ‘œ‚ğ“Ç‚İ‚İBitmap‚ğì¬

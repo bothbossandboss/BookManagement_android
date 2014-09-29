@@ -1,5 +1,8 @@
 package com.myexample.bookmanagement;
-
+/*
+ *ListViewにセットするアダプタのクラス 
+ *<>の中はListの中身の型（だと思われる）。
+ */
 import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,19 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-/*
- *ListViewにセットするアダプタのクラス 
- *<>の中はListの中身の型（だと思われる）。
- */
+
 public class CustomListItemAdapter  extends ArrayAdapter<ListViewItem>{
-	//実行時に別のxmlファイルのviewを追加する際に用いる。
+	//LayoutInflaterは実行時に別のxmlファイルのviewを追加する際に用いる。
 	private LayoutInflater layoutInflater;
+	
 	//コンストラクタ
 	public CustomListItemAdapter(Context context, int textViewResourceID, List<ListViewItem> objects)
 	{
 		super(context, textViewResourceID,objects);
 		layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
+	
 	//ListViewの各行が表示する要素を返す。
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)

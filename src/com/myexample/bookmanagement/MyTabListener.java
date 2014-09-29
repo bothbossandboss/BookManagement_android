@@ -1,5 +1,5 @@
 package com.myexample.bookmanagement;
-
+/*2つのtabをコントロールするlistenerのクラス*/
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -33,7 +33,6 @@ public class MyTabListener<T extends Fragment> implements ActionBar.TabListener 
                 android.app.FragmentManager fm = mActivity.getFragmentManager();
                 fm.beginTransaction().attach(mFragment).commit();
             }
-
         }
     }
 
@@ -47,5 +46,6 @@ public class MyTabListener<T extends Fragment> implements ActionBar.TabListener 
 
     //選択されたタブが選択されたとき
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+    	Log.d("tabListener", "reselected");
     }
 }

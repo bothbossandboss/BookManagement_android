@@ -1,12 +1,12 @@
 package com.myexample.bookmanagement;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
+/*
+ * 書籍一覧データ取得時のレスポンスを格納するクラス
+ */
 public class GotDataOfBooks {
-	public String status;
-	public String error;
-	public ArrayOfBooks data;	
+	private String status;
+	private String error;
+	private ArrayOfBooks data;	
+	
 	public GotDataOfBooks(String status, String error, ArrayOfBooks data)
 	{
 		this.status = status;
@@ -16,7 +16,16 @@ public class GotDataOfBooks {
 	
 	public String getStatus()
 	{
-		System.out.println("Got:OK");
 		return status;
+	}
+	
+	public String getError()
+	{
+		return error;
+	}
+	
+	public ArrayOfBooks getData()
+	{
+		return data;
 	}
 }

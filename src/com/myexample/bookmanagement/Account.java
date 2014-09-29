@@ -1,5 +1,7 @@
 package com.myexample.bookmanagement;
-
+/*
+ * データベースからのレスポンスであるユーザーアカウントの情報を格納するクラス
+ */
 public class Account {
 	private String user_id;
 	private String mail_address;

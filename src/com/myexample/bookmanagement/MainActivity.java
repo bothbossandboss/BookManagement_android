@@ -1,5 +1,7 @@
 package com.myexample.bookmanagement;
-
+/*
+ * 最初に呼ばれるactivityで2つのtabを持つ
+ */
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -13,9 +15,11 @@ public class MainActivity extends Activity {
 	public static final  int REQUEST_CODE_ADD = 10002;
 	public static final  int REQUEST_CODE_SELECT_IMAGE = 10003;
 	public static final  int REQUEST_CODE_SAVE_ACCOUNT = 20001;
-
 	private static final String TAG = "LifeCycleMain";
 	
+	/*
+	 * method of activity's life cycle
+	 */
 	//onCreateはアクティビティが開始される時に呼ばれるメソッド。
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,7 @@ public class MainActivity extends Activity {
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		// タブを作成して追加。
-		//タブの選択・解除・再選択をハンドリングするコールバックの TabListener をセットしないと実行時例外でクラッシュする
+		//タブの選択・解除・再選択をハンドリングするコールバックの TabListener をセットしないと実行時例外でクラッシュする。
        actionBar.addTab(actionBar.newTab().setText("書籍一覧").setTabListener(listListener));
        actionBar.addTab(actionBar.newTab().setText("設定").setTabListener(propertyListener));
        //アカウント設定のタブへ切り替え。
@@ -39,59 +43,4 @@ public class MainActivity extends Activity {
        editor.putString("state","first");
        editor.apply();
 	}
-	@Override
-    protected void onStart() {
-        super.onStart();
-
-        Log.d(TAG, "onStart");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Log.d(TAG, "onResume");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        Log.d(TAG, "onRestart");
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        Log.d(TAG, "onRestoreInstanceState");
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState");
-
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.d(TAG, "onStop");
-
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.d(TAG, "onDestroy");
-
-        super.onDestroy();
-    }
 }
