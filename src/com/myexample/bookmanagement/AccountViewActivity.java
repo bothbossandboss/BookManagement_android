@@ -35,7 +35,7 @@ public class AccountViewActivity extends Activity {
 	private JSONObject params;
 	private String inputMailAddress;
 	private String inputPassword;
-	
+
 	/*
 	 *method of activity's life cycle
 	 */	 
@@ -54,7 +54,7 @@ public class AccountViewActivity extends Activity {
 		//Intent intent = getIntent();
 		mQueue = Volley.newRequestQueue(this);
 	}
-	
+
 	public void onStart()
 	{
 		super.onStart();
@@ -66,52 +66,61 @@ public class AccountViewActivity extends Activity {
 				String saveMailAddress = sb.toString();
 				sb = (SpannableStringBuilder)passwordEditText.getText();
 				String savePassword = sb.toString();
-				sb = (SpannableStringBuilder)confirmEditText.getText();
-				String saveConfirm = sb.toString();
-				if(savePassword.equals(saveConfirm)){
-					Log.d("password","OK");
-					try {
-						registerAccount(saveMailAddress, savePassword);
-					} catch (JSONException e) {
-						e.printStackTrace();
+				Log.d("mail",saveMailAddress);
+				if(!saveMailAddress.isEmpty() && !savePassword.isEmpty())
+				{
+					sb = (SpannableStringBuilder)confirmEditText.getText();
+					String saveConfirm = sb.toString();
+					if(savePassword.equals(saveConfirm))
+					{
+						Log.d("password","OK");
+						try {
+							registerAccount(saveMailAddress, savePassword);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}else{
+						String msg = "パスワードが違います";
+						showAlert(msg);
 					}
 				}else{
-					showAlert();
+					String msg = "メールアドレスとパスワードを設定してください";
+					showAlert(msg);
 				}
 			}
 		});	
 	}
-	
+
 	/*
 	 * private method
 	 */
 	private void controlKeyboard(final EditText ed)
 	{
 		ed.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-	        @Override
-	        public void onFocusChange(View v, boolean hasFocus) {
-	            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	            // フォーカスを受け取ったとき
-	            if(hasFocus){
-	                // ソフトキーボードを表示する
-	                inputMethodManager.showSoftInput(v, InputMethodManager.SHOW_FORCED);
-	            }
-	            // フォーカスが外れたとき
-	            else{
-	                // ソフトキーボードを閉じる
-	                inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(),0);
-	            }
-	        }
-	    });
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				// フォーカスを受け取ったとき
+				if(hasFocus){
+					// ソフトキーボードを表示する
+					inputMethodManager.showSoftInput(v, InputMethodManager.SHOW_FORCED);
+				}
+				// フォーカスが外れたとき
+				else{
+					// ソフトキーボードを閉じる
+					inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(),0);
+				}
+			}
+		});
 	}
-	
-	private void showAlert()
+
+	private void showAlert(String msg)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("パスワードが違います").setPositiveButton("OK", null);
+		builder.setMessage(msg).setPositiveButton("OK", null);
 		builder.show();
 	}
-	
+
 	private void makeIntentToFinish(String user_id, String saveMailAddress, String savePassword)
 	{
 		Intent intent = new Intent();
@@ -121,7 +130,7 @@ public class AccountViewActivity extends Activity {
 		setResult(Activity.RESULT_OK, intent);
 		finish();
 	}
-	
+
 	/*
 	 * method to access Database
 	 */
@@ -137,38 +146,38 @@ public class AccountViewActivity extends Activity {
 		param.put("method", "account/regist");
 		param.put("params", params);		
 		String url = "http://"+ListViewFragment.IP_ADDRESS+":8888/cakephp/account/regist";
-	    //JsonObjectRequestは、(POST/GET, url, request, response, error)の感じ。
-	    JsonObjectRequest  request = new JsonObjectRequest(Method.POST, url, param,
-	            new Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            	responseAccountData returnData = gson.fromJson(response.toString(), responseAccountData.class);
-            	if(returnData.getStatus().equals("ng"))
-            	{
-            		//既にアカウントがある場合、ログインへ移行。
-            		Log.d("register",returnData.getError());
-            		try {
+		//JsonObjectRequestは、(POST/GET, url, request, response, error)の感じ。
+		JsonObjectRequest  request = new JsonObjectRequest(Method.POST, url, param,
+				new Listener<JSONObject>() {
+			@Override
+			public void onResponse(JSONObject response) {
+				responseAccountData returnData = gson.fromJson(response.toString(), responseAccountData.class);
+				if(returnData.getStatus().equals("ng"))
+				{
+					//既にアカウントがある場合、ログインへ移行。
+					Log.d("register",returnData.getError());
+					try {
 						loginAccount(params);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-            	}else{
-            		String user_id = returnData.getData().getUserId();
+				}else{
+					String user_id = returnData.getData().getUserId();
 					makeIntentToFinish(user_id, inputMailAddress, inputPassword);
-            	}
-            }
-        }, new Response.ErrorListener() {
-            @Override public void onErrorResponse(VolleyError error) {
-            	Log.d("account register","error"+error);
-            }}
-        );
-	    int socketTimeout = 300;//0.3 seconds 
-	    RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-	    request.setRetryPolicy(policy);
-	    mQueue.add(request);
-	    mQueue.start();
+				}
+			}
+		}, new Response.ErrorListener() {
+			@Override public void onErrorResponse(VolleyError error) {
+				Log.d("account register","error"+error);
+			}}
+				);
+		int socketTimeout = 300;//0.3 seconds 
+		RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+		request.setRetryPolicy(policy);
+		mQueue.add(request);
+		mQueue.start();
 	}
-	
+
 	private void loginAccount(JSONObject params) throws JSONException
 	{
 		final Gson gson = new Gson();
@@ -176,34 +185,35 @@ public class AccountViewActivity extends Activity {
 		param.put("method", "account/login");
 		param.put("params", params);		
 		String url = "http://"+ListViewFragment.IP_ADDRESS+":8888/cakephp/account/login";
-	    //JsonObjectRequestは、(POST/GET, url, request, response, error)の感じ。
-	    JsonObjectRequest  request = new JsonObjectRequest(Method.POST, url, param,
-	            new Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            	responseAccountData returnData = gson.fromJson(response.toString(), responseAccountData.class);
-            	if(returnData.getStatus().equals("ng"))
-            	{
-            		Log.d("login",returnData.getError());
-            		showAlert();
-            	}else{
-            		//設定画面へ。
-            		String user_id = returnData.getData().getUserId();
+		//JsonObjectRequestは、(POST/GET, url, request, response, error)の感じ。
+		JsonObjectRequest  request = new JsonObjectRequest(Method.POST, url, param,
+				new Listener<JSONObject>() {
+			@Override
+			public void onResponse(JSONObject response) {
+				responseAccountData returnData = gson.fromJson(response.toString(), responseAccountData.class);
+				if(returnData.getStatus().equals("ng"))
+				{
+					Log.d("login",returnData.getError());
+					String msg = "アカウントもしくはパスワードが違います";
+					showAlert(msg);
+				}else{
+					//設定画面へ。
+					String user_id = returnData.getData().getUserId();
 					makeIntentToFinish(user_id, inputMailAddress, inputPassword);
-            	}
-            }
-        }, new Response.ErrorListener() {
-            @Override public void onErrorResponse(VolleyError error) {
-            	Log.d("account register","error"+error);
-            }}
-        );
-	    int socketTimeout = 300;//0.3 seconds 
-	    RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-	    request.setRetryPolicy(policy);
-	    mQueue.add(request);
-	    mQueue.start();
+				}
+			}
+		}, new Response.ErrorListener() {
+			@Override public void onErrorResponse(VolleyError error) {
+				Log.d("account register","error"+error);
+			}}
+				);
+		int socketTimeout = 300;//0.3 seconds 
+		RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+		request.setRetryPolicy(policy);
+		mQueue.add(request);
+		mQueue.start();
 	}
-	
+
 	/*
 	 * class to access database
 	 */
@@ -218,17 +228,17 @@ public class AccountViewActivity extends Activity {
 			this.error = error;
 			this.data = data;
 		}
-		
+
 		public String getStatus()
 		{
 			return status;
 		}
-		
+
 		public String getError()
 		{
 			return error;
 		}
-		
+
 		public Account getData()
 		{
 			return data;

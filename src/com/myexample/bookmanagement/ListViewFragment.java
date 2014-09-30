@@ -57,16 +57,6 @@ public class ListViewFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		//ListViewに表示させる要素を作成する。
 		list = new ArrayList<ListViewItem>();
-		//ここで初期化すると、初期化データが表示されず最初からDBのデータが表示されるようになる。
-		int i;
-		for(i=0;i<10;i++)
-		{
-			String firstBookName = String.format("book"+ i);
-			String firstPrice = String.format(""+( i * 1000));
-			String firstDate = String.format("2014/10/"+( i + 1));
-			int firstResourceId = i;
-			list.add( new ListViewItem(firstResourceId, firstBookName, firstPrice, firstDate) );
-		}	
 		mQueue = Volley.newRequestQueue(getActivity());
 	}
 
@@ -81,7 +71,6 @@ public class ListViewFragment extends Fragment {
 		//ListViewは一覧の中身を管理できないので、Adapterをバインドさせ管理する。
 		adapter = new CustomListItemAdapter(getActivity(), 0, list);
 		listView.setAdapter(adapter);
-		//初期値は多分いるけど、list内容をDBから取ってくるのはonCreate内でやらないとlist内容が更新されまくって変になる。
 		try {
 			getBooksVolley("latest", FIRST_BEGIN_PAGE);
 		} catch (JSONException e) {
@@ -188,9 +177,6 @@ public class ListViewFragment extends Fragment {
 				String saveDate = intent.getStringExtra("date");
 				String saveUriString = intent.getStringExtra("imageURI");
 				//Uri imageUri = Uri.parse(saveUriString);
-				Log.d("saveIntent",""+saveTitle);
-				Log.d("saveIntent",""+savePrice);
-				Log.d("saveIntent",""+saveDate);
 				try {
 					updateEditedDataOfBook(resourceID, saveTitle, savePrice, saveDate, index);
 				} catch (JSONException e) {
@@ -268,7 +254,7 @@ public class ListViewFragment extends Fragment {
 						int resourceID = tmp.getBookId();
 						System.out.println(resourceID+":"+"name:"+bookName+"price:"+price+"date:"+date);
 						if(isThisFirstGet.equals("latest")){
-							list.set(i, new ListViewItem(resourceID, bookName, price, date) );
+							list.add(i, new ListViewItem(resourceID, bookName, price, date) );
 						}else{
 							list.add(i+nowListSize, new ListViewItem(resourceID, bookName, price, date) );
 							Log.d("get", ""+ list.size());
@@ -281,6 +267,12 @@ public class ListViewFragment extends Fragment {
 					adapter.notifyDataSetChanged();
 				}else{
 					System.out.println("error:"+gotDataOfBook.getError());
+					list = new ArrayList<ListViewItem>();
+					adapter = new CustomListItemAdapter(getActivity(), 0, list);
+					listView.setAdapter(adapter);
+					adapter.notifyDataSetChanged();
+					String msg = "登録書籍がありません。書籍を登録してください。";
+					showAlert(msg);
 				}
 			}
 		}, new Response.ErrorListener() {
@@ -294,7 +286,6 @@ public class ListViewFragment extends Fragment {
 		request.setRetryPolicy(policy);
 		mQueue.add(request);
 		mQueue.start();
-		Log.d("net","done");
 	}
 
 	private void registerEditedDataOfBook(String bookName, String price, String purchaseDate) throws JSONException
@@ -303,13 +294,13 @@ public class ListViewFragment extends Fragment {
 		tmpTitle = bookName;
 		tmpPrice = price;
 		tmpDate = purchaseDate;
-		//imageとuserIDはテスト用
-		JSONObject request_token = new JSONObject();
-		request_token.put("user_id", "3");
-		request_token.put("mail_address", "01234@567.com");
-		request_token.put("password", "01234567");
+		SharedPreferences prefs = getActivity().getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
+		JSONObject requestToken = new JSONObject();
+		requestToken.put("user_id", prefs.getString("user_id", ""));
+		requestToken.put("mail_address", prefs.getString("mail_address", ""));
+		requestToken.put("password", prefs.getString("password",""));
 		JSONObject params = new JSONObject();
-		params.put("request_token",request_token);
+		params.put("request_token",requestToken);
 		params.put("book_name",bookName);
 		params.put("price",price);
 		params.put("purchase_date",purchaseDate);
@@ -327,6 +318,7 @@ public class ListViewFragment extends Fragment {
 				tmpID = Integer.parseInt(tmp);
 				list.add(0,new ListViewItem(tmpID,tmpTitle,tmpPrice,tmpDate));
 				Log.d("register",""+tmpID);
+				adapter.notifyDataSetChanged();
 			}}, new Response.ErrorListener() {
 				@Override public void onErrorResponse(VolleyError error) {
 					Log.d(TAG,"error"+error);
@@ -349,13 +341,13 @@ public class ListViewFragment extends Fragment {
 		tmpTitle = bookName;
 		tmpPrice = price;
 		tmpDate = purchaseDate;
-		//imageとuserIDはテスト用。
-		JSONObject request_token = new JSONObject();
-		request_token.put("user_id", "3");
-		request_token.put("mail_address", "01234@567.com");
-		request_token.put("password", "01234567");
+		SharedPreferences prefs = getActivity().getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
+		JSONObject requestToken = new JSONObject();
+		requestToken.put("user_id", prefs.getString("user_id", ""));
+		requestToken.put("mail_address", prefs.getString("mail_address", ""));
+		requestToken.put("password", prefs.getString("password",""));
 		JSONObject params = new JSONObject();
-		params.put("request_token",request_token);
+		params.put("request_token",requestToken);
 		params.put("book_id", ID);
 		params.put("book_name",bookName);
 		params.put("price",price);
@@ -373,6 +365,7 @@ public class ListViewFragment extends Fragment {
 				String tmp = resultData.getBookId();
 				tmpID = Integer.parseInt(tmp);
 				list.set(tmpIndex,new ListViewItem(tmpID,tmpTitle,tmpPrice,tmpDate));
+				adapter.notifyDataSetChanged();
 				Log.d("update",""+tmpID);
 			}}, new Response.ErrorListener() {
 				@Override public void onErrorResponse(VolleyError error) {
